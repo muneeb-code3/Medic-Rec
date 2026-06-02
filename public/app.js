@@ -1,6 +1,17 @@
 const timeline = document.getElementById("recordsTimeline");
 const recordCount = document.getElementById("recordCount");
 const doctorSearch = document.getElementById("doctorSearch");
+const openRecordModalButton = document.getElementById("openRecordModal");
+const openDoctorModalButton = document.getElementById("openDoctorModal");
+const recordModal = document.getElementById("recordModal");
+const doctorModal = document.getElementById("doctorModal");
+const recordForm = document.getElementById("recordForm");
+const doctorForm = document.getElementById("doctorForm");
+const recordDoctorSelect = document.getElementById("recordDoctorSelect");
+const recordFormMessage = document.getElementById("recordFormMessage");
+const doctorFormMessage = document.getElementById("doctorFormMessage");
+
+let doctorsCache = [];
 
 const formatDate = (value) => {
   if (!value) {
@@ -68,6 +79,7 @@ const renderRecords = (records) => {
 
 const populateDoctorSearch = (doctors) => {
   if (!doctors.length) {
+    doctorSearch.setAttribute("placeholder", "Search doctor");
     return;
   }
 
@@ -77,27 +89,173 @@ const populateDoctorSearch = (doctors) => {
   );
 };
 
+const populateDoctorDropdown = (doctors) => {
+  recordDoctorSelect.innerHTML = `
+    <option value="">No doctor assigned</option>
+    ${doctors
+      .map(
+        (doctor) =>
+          `<option value="${doctor.id}">${escapeHtml(doctor.name)}</option>`
+      )
+      .join("")}
+  `;
+};
+
+const fetchDoctors = async () => {
+  const response = await fetch("/api/doctors");
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch doctors.");
+  }
+
+  doctorsCache = await response.json();
+  populateDoctorSearch(doctorsCache);
+  populateDoctorDropdown(doctorsCache);
+  return doctorsCache;
+};
+
+const fetchRecords = async () => {
+  const response = await fetch("/api/records");
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch medical records.");
+  }
+
+  return response.json();
+};
+
+const refreshTimeline = async () => {
+  const records = await fetchRecords();
+  renderRecords(records);
+};
+
 const loadDashboardData = async () => {
   try {
-    const [doctorsResponse, recordsResponse] = await Promise.all([
-      fetch("/api/doctors"),
-      fetch("/api/records")
-    ]);
-
-    if (!doctorsResponse.ok || !recordsResponse.ok) {
-      throw new Error("Dashboard API request failed.");
-    }
-
     const [doctors, records] = await Promise.all([
-      doctorsResponse.json(),
-      recordsResponse.json()
+      fetchDoctors(),
+      fetchRecords()
     ]);
 
     populateDoctorSearch(doctors);
+    populateDoctorDropdown(doctors);
     renderRecords(records);
   } catch (error) {
     renderErrorState();
   }
 };
 
-document.addEventListener("DOMContentLoaded", loadDashboardData);
+const openModal = (modal) => {
+  modal.classList.add("is-open");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+};
+
+const closeModal = (modal) => {
+  modal.classList.remove("is-open");
+  modal.setAttribute("aria-hidden", "true");
+
+  if (!document.querySelector(".modal-overlay.is-open")) {
+    document.body.classList.remove("modal-open");
+  }
+};
+
+const getFormData = (form) => Object.fromEntries(new FormData(form).entries());
+
+const postJson = async (url, payload) => {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Request failed.");
+  }
+
+  return data;
+};
+
+const handleDoctorSubmit = async (event) => {
+  event.preventDefault();
+  doctorFormMessage.textContent = "";
+
+  const formData = getFormData(doctorForm);
+  const payload = {
+    name: formData.name.trim(),
+    specialty: formData.specialty.trim(),
+    clinic_name: formData.clinic_name.trim(),
+    phone_number: "",
+    email: ""
+  };
+
+  try {
+    await postJson("/api/doctors", payload);
+    doctorForm.reset();
+    closeModal(doctorModal);
+    await fetchDoctors();
+    await refreshTimeline();
+  } catch (error) {
+    doctorFormMessage.textContent = error.message;
+  }
+};
+
+const handleRecordSubmit = async (event) => {
+  event.preventDefault();
+  recordFormMessage.textContent = "";
+
+  const formData = getFormData(recordForm);
+  const payload = {
+    doctor_id: formData.doctor_id ? Number(formData.doctor_id) : null,
+    title: formData.title.trim(),
+    category: formData.category,
+    record_date: formData.record_date,
+    notes: formData.notes.trim()
+  };
+
+  try {
+    await postJson("/api/records", payload);
+    recordForm.reset();
+    closeModal(recordModal);
+    await refreshTimeline();
+  } catch (error) {
+    recordFormMessage.textContent = error.message;
+  }
+};
+
+const wireModalEvents = () => {
+  openRecordModalButton.addEventListener("click", () => openModal(recordModal));
+  openDoctorModalButton.addEventListener("click", () => openModal(doctorModal));
+
+  document.querySelectorAll("[data-close-modal]").forEach((button) => {
+    button.addEventListener("click", () => {
+      closeModal(document.getElementById(button.dataset.closeModal));
+    });
+  });
+
+  [recordModal, doctorModal].forEach((modal) => {
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) {
+        closeModal(modal);
+      }
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeModal(recordModal);
+      closeModal(doctorModal);
+    }
+  });
+
+  doctorForm.addEventListener("submit", handleDoctorSubmit);
+  recordForm.addEventListener("submit", handleRecordSubmit);
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  wireModalEvents();
+  loadDashboardData();
+});

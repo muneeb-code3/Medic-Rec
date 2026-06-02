@@ -31,7 +31,10 @@
             <p class="eyebrow">Overview</p>
             <h2>Health Dashboard</h2>
           </div>
-          <div class="status-pill">Local-first care log</div>
+          <div class="header-actions">
+            <button id="openDoctorModal" class="secondary-button" type="button">Add Doctor</button>
+            <button id="openRecordModal" class="primary-button" type="button">Add New Record</button>
+          </div>
         </header>
 
         <section class="dashboard-grid" aria-label="Medical records dashboard">
@@ -111,6 +114,86 @@
           </article>
         </section>
       </main>
+    </div>
+
+    <div id="recordModal" class="modal-overlay" aria-hidden="true">
+      <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="recordModalTitle">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">New entry</p>
+            <h2 id="recordModalTitle">Add New Record</h2>
+          </div>
+          <button class="icon-button" type="button" data-close-modal="recordModal" aria-label="Close record form">x</button>
+        </div>
+
+        <form id="recordForm" class="entry-form">
+          <label>
+            Title
+            <input type="text" name="title" required placeholder="Annual checkup">
+          </label>
+          <label>
+            Category
+            <select name="category" required>
+              <option value="">Select category</option>
+              <option value="Visit">Visit</option>
+              <option value="Lab Result">Lab Result</option>
+              <option value="Imaging">Imaging</option>
+              <option value="Vaccine">Vaccine</option>
+            </select>
+          </label>
+          <label>
+            Record Date
+            <input type="date" name="record_date" required>
+          </label>
+          <label>
+            Doctor
+            <select id="recordDoctorSelect" name="doctor_id">
+              <option value="">No doctor assigned</option>
+            </select>
+          </label>
+          <label class="full-field">
+            Notes
+            <textarea name="notes" rows="4" placeholder="Add visit summary, instructions, or observations"></textarea>
+          </label>
+          <p id="recordFormMessage" class="form-message" aria-live="polite"></p>
+          <div class="form-actions">
+            <button class="secondary-button" type="button" data-close-modal="recordModal">Cancel</button>
+            <button class="primary-button" type="submit">Save Record</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div id="doctorModal" class="modal-overlay" aria-hidden="true">
+      <section class="modal-card compact" role="dialog" aria-modal="true" aria-labelledby="doctorModalTitle">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Care team</p>
+            <h2 id="doctorModalTitle">Add Doctor</h2>
+          </div>
+          <button class="icon-button" type="button" data-close-modal="doctorModal" aria-label="Close doctor form">x</button>
+        </div>
+
+        <form id="doctorForm" class="entry-form single-column">
+          <label>
+            Name
+            <input type="text" name="name" required placeholder="Dr. Ayesha Khan">
+          </label>
+          <label>
+            Specialty
+            <input type="text" name="specialty" placeholder="Cardiology">
+          </label>
+          <label>
+            Clinic
+            <input type="text" name="clinic_name" placeholder="Bluecare Clinic">
+          </label>
+          <p id="doctorFormMessage" class="form-message" aria-live="polite"></p>
+          <div class="form-actions">
+            <button class="secondary-button" type="button" data-close-modal="doctorModal">Cancel</button>
+            <button class="primary-button" type="submit">Save Doctor</button>
+          </div>
+        </form>
+      </section>
     </div>
     <script src="app.js"></script>
   </body>
