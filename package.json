@@ -4,9 +4,11 @@
   "private": true,
   "description": "Local-first medical records web application scaffold.",
   "scripts": {
-    "init-db": "node backend/init-db.js"
+    "init-db": "node backend/init-db.js",
+    "start": "node backend/server.js"
   },
   "dependencies": {
+    "express": "^4.19.2",
     "sqlite3": "^5.1.7"
   }
 }
