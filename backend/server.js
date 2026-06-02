@@ -1,10 +1,12 @@
 const express = require("express");
+const path = require("path");
 const db = require("./db");
 
 const app = express();
 const PORT = 5000;
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "..", "public")));
 
 app.get("/api/doctors", (req, res) => {
   db.all("SELECT * FROM doctors ORDER BY created_at DESC", (error, doctors) => {

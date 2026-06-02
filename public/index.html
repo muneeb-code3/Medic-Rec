@@ -3,11 +3,115 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Medical Records</title>
+    <title>Medical Records Dashboard</title>
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <main>
-      <h1>Medical Records</h1>
-    </main>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <div class="brand">
+          <span class="brand-mark">MR</span>
+          <div>
+            <p class="eyebrow">Medical</p>
+            <h1>Records</h1>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <a class="nav-link active" href="#">Dashboard</a>
+          <a class="nav-link" href="#">My Records</a>
+          <a class="nav-link" href="#">Doctors</a>
+          <a class="nav-link" href="#">Medications</a>
+        </nav>
+      </aside>
+
+      <main class="dashboard">
+        <header class="dashboard-header">
+          <div>
+            <p class="eyebrow">Overview</p>
+            <h2>Health Dashboard</h2>
+          </div>
+          <div class="status-pill">Local-first care log</div>
+        </header>
+
+        <section class="dashboard-grid" aria-label="Medical records dashboard">
+          <article class="card timeline-card">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Timeline</p>
+                <h3>Recent Medical Records Timeline</h3>
+              </div>
+              <span id="recordCount" class="card-meta">Loading</span>
+            </div>
+            <div id="recordsTimeline" class="timeline" aria-live="polite"></div>
+          </article>
+
+          <article class="card search-card">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Filters</p>
+                <h3>Search &amp; Filter</h3>
+              </div>
+            </div>
+            <form class="filter-form">
+              <label>
+                Date Range
+                <div class="date-range">
+                  <input type="date" name="start_date" aria-label="Start date">
+                  <input type="date" name="end_date" aria-label="End date">
+                </div>
+              </label>
+              <label>
+                Category
+                <input type="text" name="category" placeholder="Lab, Checkup, Imaging">
+              </label>
+              <label>
+                Doctor Name
+                <input id="doctorSearch" type="text" name="doctor_name" placeholder="Search doctor">
+              </label>
+            </form>
+          </article>
+
+          <article class="card medications-card">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Medication</p>
+                <h3>Current Medications</h3>
+              </div>
+              <span class="card-meta">Active</span>
+            </div>
+            <div class="medication-list">
+              <div class="medication-row">
+                <span class="dot green"></span>
+                <div>
+                  <strong>No active medications loaded</strong>
+                  <p>Add medications to records to track dosage and frequency.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card appointments-card">
+            <div class="card-header">
+              <div>
+                <p class="eyebrow">Schedule</p>
+                <h3>Upcoming Appointments</h3>
+              </div>
+            </div>
+            <div class="appointment-list">
+              <div class="appointment-date">
+                <span>--</span>
+                <small>Next</small>
+              </div>
+              <div>
+                <strong>No appointments scheduled</strong>
+                <p>Your upcoming visits will appear here.</p>
+              </div>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+    <script src="app.js"></script>
   </body>
 </html>
