@@ -115,12 +115,26 @@ const fetchDoctors = async () => {
 };
 
 const fetchRecords = async () => {
-  const response = await fetch("/api/records");
+  const params = new URLSearchParams();
+  const startDate = document.querySelector('input[name="start_date"]').value;
+  const endDate = document.querySelector('input[name="end_date"]').value;
+  const category = document.querySelector('input[name="category"]').value.trim();
+  const doctorName = document.querySelector('input[name="doctor_name"]').value.trim();
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch medical records.");
+  if (startDate) params.append('start_date', startDate);
+  if (endDate) params.append('end_date', endDate);
+  if (category) params.append('category', category);
+
+  if (doctorName && doctorsCache.length) {
+    const match = doctorsCache.find(d => d.name.toLowerCase().includes(doctorName.toLowerCase()));
+    if (match) params.append('doctor_id', match.id);
   }
 
+  const url = '/api/records' + (params.toString() ? `?${params.toString()}` : '');
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Failed to fetch medical records.');
+  }
   return response.json();
 };
 

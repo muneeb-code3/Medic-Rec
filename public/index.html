@@ -155,6 +155,10 @@
             Notes
             <textarea name="notes" rows="4" placeholder="Add visit summary, instructions, or observations"></textarea>
           </label>
+          <label for="recordAttachment">
+            Attach Document (PDF, PNG, JPG)
+            <input type="file" id="recordAttachment" name="attachment" accept=".pdf,.png,.jpg,.jpeg" />
+          </label>
           <p id="recordFormMessage" class="form-message" aria-live="polite"></p>
           <div class="form-actions">
             <button class="secondary-button" type="button" data-close-modal="recordModal">Cancel</button>
